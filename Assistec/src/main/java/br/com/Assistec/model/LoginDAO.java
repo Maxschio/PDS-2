@@ -9,13 +9,13 @@ import javax.swing.JOptionPane;
 
 import br.com.loja.Assistec.dal.ModuloConexao;
 
-public class UsuarioModel {
+public class LoginDAO {
 
 	public Connection conexao = null;
 	private PreparedStatement pst = null;
 	private ResultSet rs = null;
 
-	public UsuarioModel() {
+	public LoginDAO() {
 		conexao = ModuloConexao.connector();
 	}
 
