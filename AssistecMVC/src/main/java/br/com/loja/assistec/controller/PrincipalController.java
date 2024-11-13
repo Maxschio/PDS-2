@@ -2,50 +2,85 @@ package br.com.loja.assistec.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 
+import br.com.loja.assistec.view.MensagemView;
 import br.com.loja.assistec.view.PrincipalView;
 
 public class PrincipalController {
+	private PrincipalView principalView;
+	protected String login;
+	protected String perfil;
 
-	private PrincipalView view;
-
-	public PrincipalController(String usuario, String perfil) {
-		this.view = new PrincipalView(usuario, perfil);
+	public PrincipalController(String login, String perfil) {
+		this.login = login;
+		this.perfil = perfil;
+		this.principalView = new PrincipalView();
+		configurarJanela();
 		configurarListeners();
-		this.view.setVisible(true);
-		this.view.setLocationRelativeTo(null);
+
 	}
 
-	private class principalListener implements ActionListener {
+	private void configurarJanela() {
+		principalView.setLocationRelativeTo(null);
+		principalView.setVisible(true);
+	}
+
+	private class MenuActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if ("MenuSobreAction".equals(e.getActionCommand())) {
-				sobre();
-			} else if ("MenuSairAction".equals(e.getActionCommand())) {
-				sair();
-			} else if ("MenuUsuariosAction".equals(e.getActionCommand())) {
-				listarUsuarios();
+			String comando = e.getActionCommand();
+
+			switch (comando) {
+			case "MenuUsuariosAction":
+				abrirListagemUsuarios();
+				break;
+			case "MenuSairAction":
+				sairDoSistema();
+				break;
+			case "MenuSobreAction":
+				mostrarInformacoesSobre();
+				break;
+			default:
+				break;
 			}
 		}
 	}
 
 	private void configurarListeners() {
-		view.addPrincipalListener(new principalListener());
-
+		principalView.addPrincipalViewListener(new MenuActionListener());
+		principalView.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowOpened(WindowEvent e) {
+				configurarPerfilUsuario();
+			}
+		});
 	}
 
-	private void sobre() {
-		view.mostrarMensagem("sistema de ordem de serviço", "Informação");
+	private void abrirListagemUsuarios() {
+		new ListarUsuarioController();
 	}
 
-	private void sair() {
-		int Resposta = view.SairSistema();
-		if (Resposta == 0) {
+	private void sairDoSistema() {
+		int confirmacao = principalView.confirmarFecharSistema();
+		if (confirmacao == 0) {
 			System.exit(0);
 		}
 	}
 
-	private void listarUsuarios() {
+	private void mostrarInformacoesSobre() {
+		new MensagemView("Sistema de Gestão Assistec - Versão 1.0!", 10);
+	}
+
+	private void configurarPerfilUsuario() {
+		ArrayList<String> listaPerfil = new ArrayList<>();
+		if ("Admin".equalsIgnoreCase(perfil)) {
+			listaPerfil.add("MenuRelatorio");
+			listaPerfil.add("MenuCadastro");
+		}
+		principalView.configurarPerfilUsuario(login, listaPerfil);
 	}
 
 }
