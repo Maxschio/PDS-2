@@ -1,9 +1,7 @@
 package br.com.loja.assistec.view;
 
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -11,8 +9,9 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+//import javax.swing.table.TableRowSorter;
+//import br.com.loja.assistec.model.UsuarioTableModel;
 
-import br.com.loja.assistec.controller.UsuarioController;
 import br.com.loja.assistec.model.Usuario;
 import br.com.loja.assistec.model.UsuarioTableModel;
 
@@ -20,72 +19,73 @@ public class ListarUsuariosView extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JTextField txtLocalizar;
+	private JButton btnCadastrar;
+	private JButton btnFechar;
 	private JTable tabela;
-	private ArrayList<Usuario> usuariosList;
-//	private ListarUsuariosView listarUsusariosView;
 	private UsuarioTableModel usuarioTableModel;
 //	private TableRowSorter<UsuarioTableModel> rowSorter;
+	private JScrollPane scroolPane;
 
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ListarUsuariosView frame = new ListarUsuariosView();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+	
+	public ListarUsuariosView() {
+		inicializarComponentes();
+		configurarJanela();
 	}
-
-	public ListarUsuariosView() throws SQLException {
-//		this.listarUsusariosView = this;
-		usuariosList = new ArrayList<>();
-		
-		UsuarioController uc = new UsuarioController();
-		usuariosList = uc.listarUsuarios();
-		
-		setTitle("Listagem de usuários");
-		setBounds(100, 100, 450, 300);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		getContentPane().setLayout(null);
-		
-		JButton btnCadastrar = new JButton("Cadastrar");
-		btnCadastrar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CadastrarUsuariosView cadUser = 
-						new CadastrarUsuariosView();
-				cadUser.setLocationRelativeTo(cadUser);
-				cadUser.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-				cadUser.setVisible(true);
-			}
-		});
-		btnCadastrar.setBounds(10, 11, 117, 23);
-		getContentPane().add(btnCadastrar);
+	
+	public void inicializarComponentes() {
+		btnCadastrar = new JButton("Cadastrar");
+		btnCadastrar.setActionCommand("BotaoCadastrarAction");
+		btnCadastrar.setBounds(39, 34, 103, 33);
 		
 		txtLocalizar = new JTextField();
-		txtLocalizar.setBounds(139, 12, 252, 20);
-		getContentPane().add(txtLocalizar);
-		txtLocalizar.setColumns(10);
+		txtLocalizar.setBounds(154, 34, 416, 33);
 		
-		JButton btnFechar = new JButton("Fechar");
-		btnFechar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				dispose();
-			}
-		});
-		btnFechar.setBounds(189, 216, 89, 23);
-		getContentPane().add(btnFechar);
+		btnFechar = new JButton("Fechar");
+		btnFechar.setActionCommand("BotaoFecharAction");
+		btnFechar.setBounds(269, 337, 89, 33);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 57, 381, 148);
-		getContentPane().add(scrollPane);
-		
-		usuarioTableModel = new UsuarioTableModel(usuariosList);
 		tabela = new JTable();
-		tabela.setModel(usuarioTableModel);
-		scrollPane.setViewportView(tabela);
-
+		scroolPane = new JScrollPane(tabela);
+		scroolPane.setBounds(39,95,530,215);
+		
+		setLayout(null);
+		add(btnCadastrar);
+		add(btnFechar);
+		add(txtLocalizar);
+		add(scroolPane);
 	}
-}
+	
+	public void configurarJanela() {
+		setTitle("Listagem de usuários");
+		setBounds(100, 100, 650, 420);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	public void addListarUsuariosListener(ActionListener listener) {
+		btnCadastrar.addActionListener(listener);
+		btnFechar.addActionListener(listener);
+	}
+
+	public void mostrarUsuariosTabela(ArrayList<Usuario> listaUsuarios) {
+		usuarioTableModel = new UsuarioTableModel(listaUsuarios);
+		tabela.setModel(usuarioTableModel);
+	}
+	
+	//Adiciona um listener para os eventos do clique na tabela
+	public void addTabelaMouseListener(MouseListener listener) {
+		tabela.addMouseListener(listener);
+	}
+	// retorna linha selecionada no  JTable
+	public int getLinhaSelecionada() {
+		return tabela.getSelectedRow();
+		
+	}
+	public Object getValorLinhaColuna(int linha, int coluna) {
+		return tabela.getValueAt(linha, coluna);
+		
+	}
+	
+	public void atualizarTabelasUsuarios(ArrayList<Usuario> novosUsuarios) {
+		usuarioTableModel.carregarDados(novosUsuarios);	
+	}
+	}
